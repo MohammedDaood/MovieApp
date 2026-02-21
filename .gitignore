@@ -1,0 +1,23 @@
+﻿# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build folders
+bin/
+obj/
+
+# Rider
+.idea/
+
+# Files created by Visual Studio
+*.cache
+*.pdb
+*.dll
+*.exe
+
+# Others
+*.log
+
+# Docker
+docker-compose.override.yml
