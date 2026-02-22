@@ -9,6 +9,8 @@ services:
       - ACCEPT_EULA=Y
     ports:
       - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
 
   movieapp:
     build:
@@ -19,3 +21,10 @@ services:
       - "5000:8080"
     depends_on:
       - sqlserver
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - .:/app  # · ›⁄Ì· Hot Reload √À‰«¡ «· ÿÊÌ—
+
+volumes:
+  sql_data:
