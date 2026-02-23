@@ -3,28 +3,28 @@ version: '3.9'
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver
+    container_name: sql_server
     environment:
-      - SA_PASSWORD=YourStrong@Pass123
-      - ACCEPT_EULA=Y
+      MSSQL_SA_PASSWORD: "YourStrong@Pass123"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Evaluation"
     ports:
       - "1433:1433"
     volumes:
-      - sql_data:/var/opt/mssql
+      - sql_data:/var/opt/mssql   
 
-  movieapp:
+  api:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: movieapp
+    image: za3em/movieapp-api:latest
     ports:
       - "5000:8080"
     depends_on:
       - sqlserver
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    volumes:
-      - .:/app  # · ›⁄Ì· Hot Reload √À‰«¡ «· ÿÊÌ—
+      ConnectionStrings__MyConnection: "Server=sqlserver;Database=MovieDb;User Id=sa;Password=YourStrong@Pass123;TrustServerCertificate=True"
 
 volumes:
-  sql_data:
+  sql_data: {} 
