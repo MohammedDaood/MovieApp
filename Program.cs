@@ -1,24 +1,35 @@
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using MovieApp.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Configure database connection from appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("MyConnection");
 
-// for database connection Configuration
-//________________________________________________//
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
-//________________________________________________//
+    options.UseSqlServer(
+         "Server=sqlserver,1433;Database=MovieDb;User Id=sa;Password=Za3em445439!;TrustServerCertificate=True;Encrypt=False;",
+        sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorNumbersToAdd: null
+            );
+        })
+);
 
-//≈–«  —Ìœ √‰ Ì Ê«’· √Ì ›—Ê‰  (React, Angular, Flutter Web) „⁄ «·‹ API°  Õ «Ã CORS:
+builder.Services.AddControllers();
+
+
+// Enable CORS (restrict for production environment)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -26,31 +37,30 @@ builder.Services.AddCors(options =>
                         .AllowAnyHeader()
                         .AllowAnyMethod());
 });
-// › Õ »Ê—  8080 œ«Œ· «·‹ Docker ·ﬂÌ Ì” ÿÌ⁄ √Ì ›—Ê‰  Ì Ê«’· „⁄ «·‹ API:
-builder.WebHost.UseUrls("http://0.0.0.0:8080");
 
+builder.Services.AddAuthorization();
+builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
+// Use CORS
 app.UseCors("AllowAll");
 
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
+app.UseAuthorization();
+app.MapControllers();
 
-//Â–« Ì⁄„· Migration  ·ﬁ«∆Ì œ«Œ· Docker SQL Server.
+builder.WebHost.UseUrls("http://0.0.0.0:8080");
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
-
-// Configure the HTTP request pipeline.
-
-app.UseSwagger();
-    app.UseSwaggerUI();         
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-app.MapControllers();
 
 app.Run();
