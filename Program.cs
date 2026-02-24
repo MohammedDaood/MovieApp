@@ -11,11 +11,9 @@ builder.Services.AddSwaggerGen();
 var connectionString = builder.Configuration.GetConnectionString("MyConnection");
 
 
-
-
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
-         "Server=sqlserver,1433;Database=MovieDb;User Id=sa;Password=Za3em445439!;TrustServerCertificate=True;Encrypt=False;",
+        connectionString,
         sqlOptions =>
         {
             sqlOptions.EnableRetryOnFailure(
@@ -60,7 +58,20 @@ builder.WebHost.UseUrls("http://0.0.0.0:8080");
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+   var retries = 10;
+while (retries > 0)
+{
+    try
+    {
+        db.Database.Migrate();
+        break;
+    }
+    catch
+    {
+        retries--;
+        Thread.Sleep(5000);
+    }
+}
 }
 
 app.Run();

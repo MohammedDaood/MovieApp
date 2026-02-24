@@ -20,12 +20,12 @@ namespace MovieApp.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllGenres()
         {
-            var Genres = await _Context.Genres.OrderBy(g=>g.Name).ToListAsync();
+            var Genres = await _Context.Genres.OrderBy(g => g.Name).ToListAsync();
             return Ok(Genres);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddGenres([FromBody]AddGenresDTO dto)
+        public async Task<IActionResult> AddGenres([FromBody] AddGenresDTO dto)
         {
             var genre = new Genre
             {
@@ -39,10 +39,10 @@ namespace MovieApp.Controllers
 
 
         [HttpPut("{Id}")]
-        public async Task<IActionResult> UpdateGenres( int Id , [FromBody] UpdateGenresDTO dto)
+        public async Task<IActionResult> UpdateGenres(int Id, [FromBody] UpdateGenresDTO dto)
         {
             // using SingleOrDefaultAsync because we have .Genre id is byte;
-            var genre = await _Context.Genres.SingleOrDefaultAsync(g=>g.Id==Id);
+            var genre = await _Context.Genres.SingleOrDefaultAsync(g => g.Id == Id);
 
             if (genre == null)
                 return NotFound($"No Genre with id {Id}");
